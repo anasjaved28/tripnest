@@ -9,7 +9,7 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose_9-47A248?logo=mongodb&logoColor=white)
 ![EJS](https://img.shields.io/badge/Views-EJS-B4CA65)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3)
-![Deployed on Render](https://img.shields.io/badge/Deployed_on-Render-46E3B7)
+![Deployed on Render](https://img.shields.io/badge/Deployed_on-Render-46E3B7?logo=render&logoColor=white)
 
 </div>
 
