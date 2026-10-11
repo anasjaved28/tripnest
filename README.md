@@ -130,7 +130,7 @@ The app is deployed on [Render](https://render.com) with MongoDB Atlas.
 
 - **Build command:** `npm install`
 - **Start command:** `npm start`
-- **Environment:** all variables above, with `NODE_ENV=production` and `MONGO_URI` pointing to Atlas
+- **Environment:** all variables above, with `NODE_ENV=production` and `ATLAS_URI` pointing to Atlas
 
 Production sessions use secure, `httpOnly`, `sameSite` cookies and require HTTPS, which Render provides by default.
 
