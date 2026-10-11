@@ -2,7 +2,7 @@
 
 An Airbnb-style full-stack web app where users can discover stays, list their own properties, upload photos, see locations on a map and leave star-rated reviews.
 
-**Live demo:** `<add your Render URL here>`
+**Live demo:** `https://wanderlust-i3r9.onrender.com/listings`
 
 <!-- Add a screenshot or GIF here: ![Wanderlust home page](docs/home.png) -->
 
