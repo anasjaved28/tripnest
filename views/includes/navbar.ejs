@@ -4,7 +4,7 @@
       ><i class="fa-brands fa-airbnb"></i
     ></a>
 
-    <!-- creates the hamburger menu button -->
+    <!-- hamburger menu -->
     <button
       class="navbar-toggler"
       type="button"
@@ -24,7 +24,6 @@
 
       <div class="navbar-nav ms-auto">
         <a class="nav-link" href="/listings/new">Add New Listing</a>
-        <!-- currUser == req.user which stores user's credentials -->
         <% if (!currUser) { %>
           <a class="nav-link" href="/signup"><b>Sign Up</b></a>
           <a class="nav-link" href="/login"><b>Login</b></a>
