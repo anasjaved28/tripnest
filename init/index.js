@@ -6,11 +6,11 @@ const sampleListings = require("./data.js");
 const Listing = require("../models/listing.js");
 
 const MALDIVES = [73.5093, 4.1755]; // [lng, lat], Malé
-const OWNER_ID = "6aca8c258c8ef2f21d8b0a9a"; // must be the _id of a real user
+const OWNER_ID = "6acb9693110c6225fea14013"; // must be the _id of a real user
 const DEFAULT_CATEGORY = "Trending"; // used when a listing in data.js has no category
 
 const initDB = async () => {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.ATLAS_URI);
   console.log("connected to DB");
 
   await Listing.deleteMany({});

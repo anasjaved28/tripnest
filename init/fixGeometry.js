@@ -6,7 +6,7 @@ const MALDIVES = [73.5093, 4.1755]; // [lng, lat], Malé
 
 (async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.ATLAS_URI);
 
     const result = await Listing.updateMany(
       {

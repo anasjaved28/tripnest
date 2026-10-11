@@ -5,14 +5,35 @@ const geocodingClient = mbxGeoCoding({ accessToken: mapToken });
 const { CATEGORIES } = require("../utils/categories.js");
 const { deleteImage } = require("../cloudConfig.js");
 
+// Escape regex special characters so users can't inject patterns like ".*" or "(a+)+"
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 module.exports.index = async (req, res) => {
   const { category } = req.query;
-  const valid = CATEGORIES.some((c) => c.name === category);
-  const allListings = await Listing.find(valid ? { category } : {});
+  const validCategory = CATEGORIES.some((c) => c.name === category);
+
+  // req.query.q can be an array if the URL repeats it, so only accept a string
+  const searchQuery =
+    typeof req.query.q === "string" ? req.query.q.trim().slice(0, 100) : "";
+
+  const filter = {};
+  if (validCategory) filter.category = category;
+  if (searchQuery) {
+    const regex = new RegExp(escapeRegex(searchQuery), "i"); // "i" = case-insensitive
+    filter.$or = [
+      { title: regex },
+      { location: regex },
+      { country: regex },
+      { category: regex },
+    ];
+  }
+
+  const allListings = await Listing.find(filter);
   res.render("listings/index.ejs", {
     allListings,
     categories: CATEGORIES,
-    activeCategory: valid ? category : null,
+    activeCategory: validCategory ? category : null,
+    searchQuery,
   });
 };
 

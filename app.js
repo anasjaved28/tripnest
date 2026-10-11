@@ -112,13 +112,13 @@ async function startServer() {
   try {
     if (
       !process.env.PORT ||
-      !process.env.MONGO_URI ||
+      !process.env.ATLAS_URI ||
       !process.env.SESSION_SECRET
     ) {
       throw new Error("Missing required environment variables");
     }
 
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.ATLAS_URI);
     console.log("Connected to DB");
 
     app.listen(process.env.PORT, () => {

@@ -63,6 +63,7 @@ body {
 .filters {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .filter {
@@ -160,4 +161,51 @@ body {
   height: 400px;
   width: 100%;
   border-radius: 1rem;
+}
+
+/* Tax Info */
+.tax-info {
+  display: none;
+}
+
+.tax-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid #dddddd;
+  border-radius: 2rem;
+  font-size: 0.85rem;
+}
+
+.tax-toggle:hover {
+  border-color: #222222;
+}
+
+.tax-toggle .form-check-input:checked {
+  background-color: #fa424d;
+  border-color: #fa424d;
+}
+
+/* Primary Search */
+.primary-search-button {
+  background-color: #fa424d;
+  border: none;
+  color: white;
+  padding: 0rem 1rem 0rem 1rem;
+  border-radius: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.primary-search-button i {
+  display: inline;
+  margin-right: 0.5rem;
+}
+
+.primary-search-input {
+  border: 1px solid #dddddd;
+  border-radius: 1.25rem;
+  padding: 0.5rem 1rem;
 }

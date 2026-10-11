@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Listing = require("../models/listing.js");
 
 (async () => {
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.ATLAS_URI);
 
   const result = await Listing.updateMany(
     { $or: [{ category: { $exists: false } }, { category: null }] },
