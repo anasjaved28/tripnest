@@ -33,6 +33,17 @@
       </div>
 
       <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <select id="category" name="listing[category]" class="form-select" required>
+                <option value="" disabled <%= !listing.category ? "selected" : "" %>>Choose a category</option>
+                <% for (const c of categories) { %>
+                <option value="<%= c.name %>" <%= listing.category === c.name ? "selected" : "" %>><%= c.name %></option>
+                <% } %>
+            </select>
+            <div class="invalid-feedback">Category required</div>
+      </div>
+
+      <div class="mb-3">
         Original Listing Image <br />
         <img src="<%=originalImageUrl%>" />
       </div>

@@ -24,7 +24,7 @@ router
     userController.login,
   );
 
-// LOGOUT route
-router.get("/logout", userController.logout);
+// LOGOUT route (POST, the navbar uses a form button)
+router.post("/logout", userController.logout);
 
 module.exports = router;

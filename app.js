@@ -22,6 +22,13 @@ const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
+const isProduction = process.env.NODE_ENV === "production";
+
+// Needed when deployed behind a proxy (Render, Heroku, etc.) so secure cookies work
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
+
 // EJS setup
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -33,6 +40,73 @@ app.use(methodOverride("_method"));
 // Middleware to parse incoming request bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+const sessionOptions = {
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false, // don't create a session (and cookie) for every anonymous visitor
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    httpOnly: true, // JS in the browser can't read the cookie
+    sameSite: "lax", // basic CSRF protection
+    secure: isProduction, // cookie only sent over HTTPS in production
+  },
+};
+
+app.use(session(sessionOptions));
+app.use(flash());
+
+// PASSPORT logic
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+  next();
+});
+
+// ROUTES
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/", userRouter);
+
+// UNKNOWN PATH INTERCEPTOR
+app.all("/{*splat}", (req, res, next) => {
+  next(new ExpressError(404, "Page not found"));
+});
+
+// ERROR handling middleware
+app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  // Invalid ObjectId in the URL (e.g. /listings/abc)
+  if (err.name === "CastError") {
+    err = new ExpressError(404, "Page not found");
+  }
+  // Upload problems (file too large, etc.)
+  if (err.name === "MulterError") {
+    err = new ExpressError(400, err.message);
+  }
+
+  const statusCode = err.statusCode || 500;
+  let message = err.message || "Something went wrong";
+
+  if (statusCode === 500) {
+    console.error(err);
+    if (isProduction) {
+      message = "Something went wrong"; // don't leak internal error details
+    }
+  }
+
+  res.status(statusCode).render("error.ejs", { message });
+});
 
 async function startServer() {
   try {
@@ -57,50 +131,3 @@ async function startServer() {
 }
 
 startServer();
-
-const sessionOptions = {
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // (7 days) maxAge specifies how many milliseconds the cookie should last in the browser before expiring. Here after 7 days user will automatically be logged out.
-    httpOnly: true, // prevents client-side JavaScript from reading the session cookie through document.cookie.
-  },
-};
-
-app.use(session(sessionOptions));
-app.use(flash());
-
-// PASSPORT logic
-app.use(passport.initialize()); // Initializes Passport as middleware in your Express application.
-app.use(passport.session()); // Enables persistent login sessions using Express sessions.
-passport.use(new LocalStrategy(User.authenticate())); // Tells Passport to use the Local Strategy (username + password authentication) and sets the verification logic.
-passport.serializeUser(User.serializeUser()); // User.serializeUser() stores only the unique user ID (e.g., _id). This keeps session cookies small and secure.
-passport.deserializeUser(User.deserializeUser()); // Fetches the full user object from MongoDB on every subsequent request based on the stored session ID.
-
-app.use((req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  res.locals.currUser = req.user; // Passport automatically adds the authenticated user to req.user
-  next();
-});
-
-// app.get("/", (req, res) => {
-//   res.render("root.ejs");
-// });
-
-// ROUTES
-app.use("/listings", listingRouter);
-app.use("/listings/:id/reviews", reviewRouter);
-app.use("/", userRouter);
-
-// UNKNOWN PATH INTERCEPTOR
-app.all("/{*splat}", (req, res, next) => {
-  next(new ExpressError(404, "Page not found"));
-});
-
-// ERROR handling middleware
-app.use((err, req, res, next) => {
-  let { statusCode = 500, message = "Default error" } = err;
-  res.status(statusCode).render("error.ejs", { message });
-});

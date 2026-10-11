@@ -13,7 +13,7 @@
           class="form-control"
           required
         />
-        <div class="valid-feedback">available!</div>
+        <div class="valid-feedback">Looks good!</div>
         <div class="invalid-feedback">Username required</div>
       </div>
       <div class="mb-3">
@@ -26,17 +26,24 @@
           class="form-control"
           required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">A valid email is required</div>
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Password</label>
         <input
           name="password"
           id="password"
-          placeholder="> 8 characters"
+          placeholder="at least 8 characters"
           type="password"
           class="form-control"
+          minlength="8"
           required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Password must be at least 8 characters
+        </div>
       </div>
       <button class="btn btn-success">SignUp</button>
     </form>

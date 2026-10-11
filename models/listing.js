@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const Review = require("./review.js");
+const { CATEGORY_NAMES } = require("../utils/categories.js");
 
 const listingSchema = new Schema({
   title: {
@@ -8,6 +9,10 @@ const listingSchema = new Schema({
     required: true,
   },
   description: String,
+  category: {
+    type: String,
+    enum: CATEGORY_NAMES,
+  },
   image: {
     filename: {
       type: String,

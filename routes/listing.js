@@ -1,11 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync.js");
+const ExpressError = require("../utils/ExpressError.js");
 const listingController = require("../controllers/listing.js");
 
 const multer = require("multer");
 const { storage } = require("../cloudConfig.js");
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max
+  fileFilter: (req, file, cb) => {
+    if (/^image\/(jpe?g|png|webp)$/.test(file.mimetype)) {
+      return cb(null, true);
+    }
+    cb(new ExpressError(400, "Only JPG, PNG or WEBP images are allowed"));
+  },
+});
 
 const {
   isLoggedIn,
@@ -27,7 +37,7 @@ router
 //New Route
 router.get("/new", isLoggedIn, listingController.renderNewForm);
 
-// Update and Delete Routes
+// Show, Update and Delete Routes
 router
   .route("/:id")
   .get(wrapAsync(listingController.showListing))

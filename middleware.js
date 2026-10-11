@@ -2,6 +2,7 @@ const ExpressError = require("./utils/ExpressError.js");
 const Listing = require("./models/listing");
 const Review = require("./models/review");
 const { listingSchema, reviewSchema } = require("./schema.js");
+const { deleteImage } = require("./cloudConfig.js");
 
 // AUTHENTICATION MIDDLEWARE
 module.exports.isLoggedIn = (req, res, next) => {
@@ -54,9 +55,13 @@ module.exports.isReviewAuthor = async (req, res, next) => {
 };
 
 // JOI VALIDATION (SERVER SIDE VALIDATION)
-module.exports.validateListing = (req, res, next) => {
+// Runs after multer, so the image may already be on Cloudinary when validation fails
+module.exports.validateListing = async (req, res, next) => {
   const { error } = listingSchema.validate(req.body);
   if (error) {
+    if (req.file) {
+      await deleteImage(req.file.filename);
+    }
     const errMsg = error.details.map((el) => el.message).join(", ");
     return next(new ExpressError(400, errMsg));
   }

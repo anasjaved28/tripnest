@@ -11,11 +11,24 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "wanderlust_DEV",
-    allowedFormats: ["jpeg", "png", "jpg"],
+    allowed_formats: ["jpeg", "png", "jpg", "webp"],
   },
 });
+
+const DEFAULT_FILENAME = "listingimage";
+
+// Removes an uploaded image from Cloudinary (skips the default/seed placeholder)
+const deleteImage = async (filename) => {
+  if (!filename || filename === DEFAULT_FILENAME) return;
+  try {
+    await cloudinary.uploader.destroy(filename);
+  } catch (err) {
+    console.error("Cloudinary cleanup failed:", err.message);
+  }
+};
 
 module.exports = {
   cloudinary,
   storage,
+  deleteImage,
 };

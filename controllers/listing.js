@@ -2,29 +2,39 @@ const Listing = require("../models/listing.js");
 const mbxGeoCoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const mapToken = process.env.MAPBOX_PUBLIC_TOKEN;
 const geocodingClient = mbxGeoCoding({ accessToken: mapToken });
+const { CATEGORIES } = require("../utils/categories.js");
+const { deleteImage } = require("../cloudConfig.js");
 
 module.exports.index = async (req, res) => {
-  const allListings = await Listing.find({});
-  res.render("listings/index.ejs", { allListings });
+  const { category } = req.query;
+  const valid = CATEGORIES.some((c) => c.name === category);
+  const allListings = await Listing.find(valid ? { category } : {});
+  res.render("listings/index.ejs", {
+    allListings,
+    categories: CATEGORIES,
+    activeCategory: valid ? category : null,
+  });
 };
 
 module.exports.renderNewForm = (req, res) => {
-  res.render("listings/new.ejs");
+  res.render("listings/new.ejs", { categories: CATEGORIES });
 };
 
-// Create New Listing
+// Only copy the fields we expect from the form
 const pickListingFields = ({
   title,
   description,
   price,
   location,
   country,
+  category,
 }) => ({
   title,
   description,
   price,
   location,
   country,
+  category,
 });
 
 const geocode = async (location) => {
@@ -34,9 +44,11 @@ const geocode = async (location) => {
   return response.body.features[0]?.geometry;
 };
 
+// Create New Listing
 module.exports.createListing = async (req, res) => {
   const geometry = await geocode(req.body.listing.location);
   if (!geometry) {
+    if (req.file) await deleteImage(req.file.filename); // don't leave an orphan upload
     req.flash(
       "error",
       "Could not find that location. Try being more specific.",
@@ -51,44 +63,53 @@ module.exports.createListing = async (req, res) => {
     newListing.image = { filename: req.file.filename, url: req.file.path };
   }
 
-  await newListing.save();
+  try {
+    await newListing.save();
+  } catch (err) {
+    if (req.file) await deleteImage(req.file.filename);
+    throw err;
+  }
 
   req.flash("success", "Listing Created Successfully");
   res.redirect("/listings");
 };
 
 module.exports.showListing = async (req, res) => {
-  let { id } = req.params;
+  const { id } = req.params;
   const listing = await Listing.findById(id)
     .populate({ path: "reviews", populate: { path: "author" } }) // Nested populate to get the author of each review
     .populate("owner");
   if (!listing) {
-    req.flash("error", "Requested Listing Does Not Exit");
+    req.flash("error", "Requested Listing Does Not Exist");
     return res.redirect("/listings");
   }
   res.render("listings/show.ejs", { listing });
 };
 
 module.exports.renderEditForm = async (req, res) => {
-  let { id } = req.params;
+  const { id } = req.params;
   const listing = await Listing.findById(id);
   if (!listing) {
     req.flash("error", "Requested Listing Does Not Exist");
     return res.redirect("/listings");
   }
   // Resize the Preview image using Cloudinary transformations
-  let originalImageUrl = listing.image.url;
-  originalImageUrl = originalImageUrl.replace(
+  const originalImageUrl = listing.image.url.replace(
     "/upload",
     "/upload/w_250,h_150,c_fill,q_auto",
   );
-  res.render("listings/edit.ejs", { listing, originalImageUrl });
+  res.render("listings/edit.ejs", {
+    listing,
+    originalImageUrl,
+    categories: CATEGORIES,
+  });
 };
 
 module.exports.updateListing = async (req, res) => {
   const { id } = req.params;
   const listing = await Listing.findById(id);
   if (!listing) {
+    if (req.file) await deleteImage(req.file.filename);
     req.flash("error", "Requested Listing Does Not Exist");
     return res.redirect("/listings");
   }
@@ -99,6 +120,7 @@ module.exports.updateListing = async (req, res) => {
   if (locationChanged) {
     const geometry = await geocode(listing.location);
     if (!geometry) {
+      if (req.file) await deleteImage(req.file.filename);
       req.flash(
         "error",
         "Could not find that location. Try being more specific.",
@@ -108,18 +130,32 @@ module.exports.updateListing = async (req, res) => {
     listing.geometry = geometry;
   }
 
+  let oldFilename;
   if (req.file) {
+    oldFilename = listing.image.filename;
     listing.image = { filename: req.file.filename, url: req.file.path };
   }
-  await listing.save();
+
+  try {
+    await listing.save();
+  } catch (err) {
+    if (req.file) await deleteImage(req.file.filename);
+    throw err;
+  }
+
+  // Only remove the old image once the new one is safely saved
+  if (oldFilename) await deleteImage(oldFilename);
+
   req.flash("success", "Listing Updated Successfully");
   res.redirect(`/listings/${id}`);
 };
 
 module.exports.deleteListing = async (req, res) => {
-  let { id } = req.params;
-  let deletedListing = await Listing.findByIdAndDelete(id);
-  console.log(deletedListing);
+  const { id } = req.params;
+  const deletedListing = await Listing.findByIdAndDelete(id); // model hook also deletes its reviews
+  if (deletedListing) {
+    await deleteImage(deletedListing.image && deletedListing.image.filename);
+  }
   req.flash("success", "Deleted Successfully");
   res.redirect("/listings");
 };

@@ -34,6 +34,17 @@
         <div class="invalid-feedback">Description required</div>
       </div>
 
+    <div class="mb-3">
+        <label for="category" class="form-label">Category</label>
+        <select id="category" name="listing[category]" class="form-select" required>
+             <option value="" disabled selected>Choose a category</option>
+             <% for (const c of categories) { %>
+             <option value="<%= c.name %>"><%= c.name %></option>
+             <% } %>
+        </select>
+        <div class="invalid-feedback">Category required</div>
+    </div>
+
       <div class="mb-3">
         <label for="image" class="form-label">Upload Listing Image</label>
         <input
