@@ -10,6 +10,7 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
+const { createWebCryptoAdapter, MongoStore } = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -41,7 +42,20 @@ app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+const store = MongoStore.create({
+  mongoUrl: process.env.ATLAS_URI,
+  cryptoAdapter: createWebCryptoAdapter({
+    secret: process.env.SESSION_SECRET,
+  }),
+  touchAfter: 24 * 3600, // time period in seconds
+});
+
+store.on("error", (e) => {
+  console.log("Error in mongo SESSION STORE", e);
+});
+
 const sessionOptions = {
+  store,
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false, // don't create a session (and cookie) for every anonymous visitor
