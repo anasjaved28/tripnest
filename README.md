@@ -133,11 +133,3 @@ The app is deployed on [Render](https://render.com) with MongoDB Atlas.
 - **Environment:** all variables above, with `NODE_ENV=production` and `ATLAS_URI` pointing to Atlas
 
 Production sessions use secure, `httpOnly`, `sameSite` cookies and require HTTPS, which Render provides by default.
-
-## Roadmap
-
-- Pagination and price filtering or sorting
-- Multiple images per listing
-- Bookings with availability
-- Wishlists
-- Rate limiting, security headers and automated tests
