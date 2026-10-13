@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏡 Wanderlust
+# 🏡 TripNest
 
 **A full-stack Airbnb-style marketplace for discovering, listing and reviewing places to stay.**
 
@@ -17,7 +17,7 @@
 
 ## Overview
 
-Wanderlust lets users browse stays by category or search, publish their own listings with photos, view each property on an interactive map and share star-rated reviews. It is built as a server-rendered MVC application with session-based authentication, role-aware authorization and layered input validation.
+TripNest lets users browse stays by category or search, publish their own listings with photos, view each property on an interactive map and share star-rated reviews. It is built as a server-rendered MVC application with session-based authentication, role-aware authorization and layered input validation.
 
 <!-- Add screenshots here, e.g. ![Home](docs/home.png) -->
 

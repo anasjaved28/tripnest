@@ -40,7 +40,7 @@ module.exports.renderLoginForm = (req, res) => {
 };
 
 module.exports.login = (req, res) => {
-  req.flash("success", "Welcome Back to Wanderlust");
+  req.flash("success", "Welcome Back to TripNest");
   // redirect to the page the user wanted before being sent to login
   const redirectUrl = res.locals.redirectUrl || "/listings";
   res.redirect(redirectUrl);

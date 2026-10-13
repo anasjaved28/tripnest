@@ -19,7 +19,7 @@ module.exports.index = async (req, res) => {
   const filter = {};
   if (validCategory) filter.category = category;
   if (searchQuery) {
-    const regex = new RegExp(escapeRegex(searchQuery), "i"); // "i" = case-insensitive
+    const regex = new RegExp(escapeRegex(searchQuery), "i");
     filter.$or = [
       { title: regex },
       { location: regex },
@@ -41,7 +41,6 @@ module.exports.renderNewForm = (req, res) => {
   res.render("listings/new.ejs", { categories: CATEGORIES });
 };
 
-// Only copy the fields we expect from the form
 const pickListingFields = ({
   title,
   description,
@@ -69,7 +68,7 @@ const geocode = async (location) => {
 module.exports.createListing = async (req, res) => {
   const geometry = await geocode(req.body.listing.location);
   if (!geometry) {
-    if (req.file) await deleteImage(req.file.filename); // don't leave an orphan upload
+    if (req.file) await deleteImage(req.file.filename); // deleting orphan upload
     req.flash(
       "error",
       "Could not find that location. Try being more specific.",
@@ -98,7 +97,7 @@ module.exports.createListing = async (req, res) => {
 module.exports.showListing = async (req, res) => {
   const { id } = req.params;
   const listing = await Listing.findById(id)
-    .populate({ path: "reviews", populate: { path: "author" } }) // Nested populate to get the author of each review
+    .populate({ path: "reviews", populate: { path: "author" } })
     .populate("owner");
   if (!listing) {
     req.flash("error", "Requested Listing Does Not Exist");
