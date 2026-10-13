@@ -58,9 +58,9 @@ const sessionOptions = {
   store,
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false, // don't create a session (and cookie) for every anonymous visitor
+  saveUninitialized: false,
   cookie: {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true, // JS in the browser can't read the cookie
     sameSite: "lax", // basic CSRF protection
     secure: isProduction, // cookie only sent over HTTPS in production

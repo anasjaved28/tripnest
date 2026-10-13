@@ -10,14 +10,13 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "wanderlust_DEV",
+    folder: "tripnest_DEV",
     allowed_formats: ["jpeg", "png", "jpg", "webp"],
   },
 });
 
 const DEFAULT_FILENAME = "listingimage";
 
-// Removes an uploaded image from Cloudinary (skips the default/seed placeholder)
 const deleteImage = async (filename) => {
   if (!filename || filename === DEFAULT_FILENAME) return;
   try {

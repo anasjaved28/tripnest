@@ -17,7 +17,6 @@ module.exports.isLoggedIn = (req, res, next) => {
   next();
 };
 
-// Passport clears the session on login, so the URL is copied into res.locals first
 module.exports.saveRedirectUrl = (req, res, next) => {
   if (req.session.redirectUrl) {
     res.locals.redirectUrl = req.session.redirectUrl;
@@ -54,7 +53,7 @@ module.exports.isReviewAuthor = async (req, res, next) => {
   next();
 };
 
-// JOI VALIDATION (SERVER SIDE VALIDATION)
+// JOI VALIDATION
 // Runs after multer, so the image may already be on Cloudinary when validation fails
 module.exports.validateListing = async (req, res, next) => {
   const { error } = listingSchema.validate(req.body);
